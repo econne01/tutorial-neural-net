@@ -37,6 +37,12 @@ def evaluate_model(model, test_set_inputs, test_set_outputs):
     scores = model.evaluate(test_set_inputs, test_set_outputs)
     print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 
+def predict(model, test_set_inputs, test_set_outputs):
+    # predict the outputs by using the model
+    predictions = model.predict(test_set_inputs)
+    for i in range(len(predictions)):
+        print("%d. Prediction: %.2f%%, Actual: %d" % (i, predictions[i][0], test_set_outputs[i]))
+
 if __name__ == '__main__':
     print('BEGIN data processing')
     dataset = get_data()
@@ -44,15 +50,18 @@ if __name__ == '__main__':
     # (aka, the input data (X) will be used to predict the dependent variables (Y))
     print('Dataset Length:', len(dataset))
     # Test our model on the final 10% of dataset entries
-    test_size = int(len(dataset)/10)
-    trainingX = dataset[:test_size,0:8]
-    trainingY = dataset[:test_size,8]
+    training_split = int(len(dataset) * 0.9)
+    trainingX = dataset[:training_split,0:8]
+    trainingY = dataset[:training_split,8]
 
     model = get_model()
     train_model(model, trainingX, trainingY)
 
-    testX = dataset[test_size:,0:8]
-    testY = dataset[test_size:,8]
+    testX = dataset[training_split:,0:8]
+    testY = dataset[training_split:,8]
+
     evaluate_model(model, testX, testY)
+
+    predict(model, testX, testY)
 
     print('END data processing')
